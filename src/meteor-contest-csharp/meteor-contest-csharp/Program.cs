@@ -1,36 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace meteor_contest_csharp
 {
-    class Program
+    internal class Program
     {
-        private int numberOfSolutions = 0;
-        private Board board = new Board();
-        private List<Piece> pieceList = new List<Piece>();
+        private readonly Board _board = new Board();
+        private readonly List<Piece> _pieceList = new List<Piece>();
+        private int _numberOfSolutions;
 
-        static void Main(string[] args)
-        {
-
-            Console.WriteLine("Starting PuzzleSovler: " + DateTime.UtcNow);
-            var watch = Stopwatch.StartNew();
-
-            Program solver = new Program();
-            solver.solve();
-
-            Console.WriteLine("PuzzleSolver terminated: " + DateTime.UtcNow);
-            Console.WriteLine(solver.numberOfSolutions + " solutions found.");
-            Console.WriteLine("Run time: " + watch.ElapsedMilliseconds);
-            Console.ReadLine();
-        }
-
-        public Program()
+        private Program()
         {
             var cell = new PieceCell[50];
-            for (int i = 0; i < cell.Length; i++)
+            for (var i = 0; i < cell.Length; i++)
             {
                 cell[i] = new PieceCell();
             }
@@ -141,60 +124,71 @@ namespace meteor_contest_csharp
             cell[49].SetNeighbor(CellSide.NORTH_WEST, cell[48]);
             cell[48].SetNeighbor(CellSide.SOUTH_EAST, cell[49]);
 
-            PieceCell[] cells;
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
-                cells = new PieceCell[5];
-                for (int j = 0; j < 5; j++)
+                var cells = new PieceCell[5];
+                for (var j = 0; j < 5; j++)
                 {
-                    cells[j] = cell[(i * 5) + j];
+                    cells[j] = cell[(i*5) + j];
                 }
-                pieceList.Add(new Piece(cells, i));
+                _pieceList.Add(new Piece(cells, i));
             }
         }
 
-        public void solve()
+        private static void Main(string[] args)
         {
-            if (pieceList.Count > 0)
+            Console.WriteLine("Starting PuzzleSovler: " + DateTime.UtcNow);
+            var watch = Stopwatch.StartNew();
+
+            var solver = new Program();
+            solver.Solve();
+
+            Console.WriteLine("PuzzleSolver terminated: " + DateTime.UtcNow);
+            Console.WriteLine(solver._numberOfSolutions + " solutions found.");
+            Console.WriteLine("Run time: " + watch.ElapsedMilliseconds);
+            Console.ReadLine();
+        }
+
+        private void Solve()
+        {
+            if (_pieceList.Count > 0)
             {
                 // Take the first available piece.
-                Piece currentPiece = (Piece)pieceList[0];
-                pieceList.RemoveAt(0);
+                var currentPiece = _pieceList[0];
+                _pieceList.RemoveAt(0);
 
-                for (int i = 0; i < Piece.NUMBER_OF_PERMUTATIONS; i++)
+                for (var i = 0; i < Piece.NUMBER_OF_PERMUTATIONS; i++)
                 {
-                    Piece permutation = currentPiece.GetNextPermutation();
+                    var permutation = currentPiece.GetNextPermutation();
 
-                    for (int j = 0; j < Board.NUMBEROFCELLS; j++)
+                    for (var j = 0; j < Board.TOTAL_CELL_COUNT; j++)
                     {
-                        if (board.placePiece(permutation, j))
+                        if (_board.PlacePiece(permutation, j))
                         {
-
                             /* We have now put a piece on the board, so we have to
                                continue this process with the next piece by recursively
                                calling the solve() method. */
 
-                            solve();
+                            Solve();
 
                             /* We're back from the recursion and we have to continue
                                searching at this level, so we remove the piece we
                                just added from the board. */
 
-                            board.removePiece(permutation);
+                            _board.RemovePiece(permutation);
                         }
                         // else the permutation doesn't fit on the board
                     }
                 }
 
                 // we're done with this piece
-                pieceList.Insert(0, currentPiece);
+                _pieceList.Insert(0, currentPiece);
             }
             else
             {
-
                 /* All pieces have been placed on the board so we
                    have found a solution! */
-                puzzleSolved();
+                PuzzleSolved();
             }
         }
 
@@ -202,12 +196,12 @@ namespace meteor_contest_csharp
         /**
          * <p>Prints out a message and saves the found solution.
          */
-        private void puzzleSolved()
-        {
 
+        private void PuzzleSolved()
+        {
             // Print out the solution number and time.
-            numberOfSolutions++;
-            Console.WriteLine(numberOfSolutions + " - " + DateTime.UtcNow);
+            _numberOfSolutions++;
+            Console.WriteLine(_numberOfSolutions + " - " + DateTime.UtcNow);
         }
     }
 }

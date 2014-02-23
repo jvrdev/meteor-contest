@@ -1,45 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace meteor_contest_csharp
+﻿namespace meteor_contest_csharp
 {
     public class Piece
     {
         public const int NUMBER_OF_CELLS = 5;
         public const int NUMBER_OF_PERMUTATIONS = 6 * 2;
 
-        private int number;
-        private PieceCell[] pieceCells = new PieceCell[NUMBER_OF_CELLS];
+        private readonly PieceCell[] _pieceCells = new PieceCell[NUMBER_OF_CELLS];
 
-        private int currentPermutation = 0;
+        public int Number { get; private set; }
+
+        private int _currentPermutation = 0;
+        
         public Piece(PieceCell[] pieceCells, int number)
         {
-            this.pieceCells = pieceCells;
-            this.number = number;
+            _pieceCells = pieceCells;
+            Number = number;
         }
 
         private void RotatePiece()
         {
             for (var i = 0; i < NUMBER_OF_CELLS; i++)
             {
-                pieceCells[i].Rotate();
+                _pieceCells[i].Rotate();
             }
         }
 
         private void FlipPiece()
         {
-            for (int i = 0; i < NUMBER_OF_CELLS; i++)
+            for (var i = 0; i < NUMBER_OF_CELLS; i++)
             {
-                pieceCells[i].Flip();
+                _pieceCells[i].Flip();
             }
         }
 
         public Piece GetNextPermutation()
         {
-            if (currentPermutation == 12) currentPermutation = 0;
-            switch (currentPermutation % 6)
+            if (_currentPermutation == 12) _currentPermutation = 0;
+            switch (_currentPermutation % 6)
             {
                 case 0:
                     // flip after every 6 rotations
@@ -50,7 +47,7 @@ namespace meteor_contest_csharp
                     RotatePiece();
                     break;
             }
-            currentPermutation++;
+            _currentPermutation++;
             return this;
         }
 
@@ -58,13 +55,13 @@ namespace meteor_contest_csharp
         {
             for (var i = 0; i < NUMBER_OF_CELLS; i++)
             {
-                pieceCells[i].SetProcessed(false);
+                _pieceCells[i].IsProcessed = false;
             }
         }
 
-        public PieceCell getPieceCell(int pieceCellIdx)
+        public PieceCell GetPieceCell(int index)
         {
-            return pieceCells[pieceCellIdx];
+            return _pieceCells[index];
         }
     }
 }

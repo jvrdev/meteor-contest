@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace meteor_contest_csharp
 {
     public enum CellSide
     {
-        EAST,
+        EAST = 0,
         SOUTH_EAST,
         SOUTH_WEST,
         WEST,

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace meteor_contest_csharp
+﻿namespace meteor_contest_csharp
 {
     public class PieceCell : Cell
     {
@@ -14,6 +8,7 @@ namespace meteor_contest_csharp
             SwapNeighbors(CellSide.EAST, CellSide.WEST);
             SwapNeighbors(CellSide.SOUTH_EAST, CellSide.SOUTH_WEST);
         }
+
         public void Rotate()
         {
             // Clockwise rotation

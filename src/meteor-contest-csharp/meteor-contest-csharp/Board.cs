@@ -1,92 +1,95 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace meteor_contest_csharp
 {
     public class Board
     {
-        public const int NUMBEROFCELLS = 50;
-        public const int NUMBEROFCELLSINROW = 5;
-        private BoardCell[] boardCells = new BoardCell[NUMBEROFCELLS];
+        public const int TOTAL_CELL_COUNT = 50;
+        private const int CELLS_IN_ROW_COUNT = 5;
+        private readonly BoardCell[] _boardCells = new BoardCell[TOTAL_CELL_COUNT];
+
         public Board()
         {
-            for (int i = 0; i < NUMBEROFCELLS; i++)
+            for (var i = 0; i < TOTAL_CELL_COUNT; i++)
             {
-                boardCells[i] = new BoardCell();
+                _boardCells[i] = new BoardCell();
             }
-            for (int i = 0; i < NUMBEROFCELLS; i++)
+            for (var i = 0; i < TOTAL_CELL_COUNT; i++)
             {
-                initializeBoardCell(boardCells[i], i);
+                InitializeBoardCell(_boardCells[i], i);
             }
         }
+
         /**
         * Initialize the neighbours of the given boardCell at the given
         * index on the board
         */
-        private void initializeBoardCell(BoardCell boardCell, int index)
+        private void InitializeBoardCell(BoardCell boardCell, int index)
         {
             // define the row of the cell.
-            int row = index / NUMBEROFCELLSINROW;
+            var row = index/CELLS_IN_ROW_COUNT;
             // check if the cell is last or first in the row.
-            bool isFirst = false;
-            bool isLast = false;
-            if (index % NUMBEROFCELLSINROW == 0) isFirst = true;
-            if ((index + 1) % NUMBEROFCELLSINROW == 0) isLast = true;
-            if (row % 2 == 0)
-            { // Even rows
+            var isFirst = false;
+            var isLast = false;
+            if (index%CELLS_IN_ROW_COUNT == 0) isFirst = true;
+            if ((index + 1)%CELLS_IN_ROW_COUNT == 0) isLast = true;
+            if (row%2 == 0)
+            {
+                // Even rows
                 if (row != 0)
                 {
                     // Northern neighbours
                     if (!isFirst)
                     {
-                        boardCell.SetNeighbor(CellSide.NORTH_WEST, boardCells[index - 6]);
+                        boardCell.SetNeighbor(CellSide.NORTH_WEST, _boardCells[index - 6]);
                     }
-                    boardCell.SetNeighbor(CellSide.NORTH_EAST, boardCells[index - 5]);
+                    boardCell.SetNeighbor(CellSide.NORTH_EAST, _boardCells[index - 5]);
                 }
-                if (row != ((NUMBEROFCELLS / NUMBEROFCELLSINROW) - 1))
+                if (row != ((TOTAL_CELL_COUNT/CELLS_IN_ROW_COUNT) - 1))
                 {
                     // Southern neighbours
                     if (!isFirst)
                     {
-                        boardCell.SetNeighbor(CellSide.SOUTH_WEST, boardCells[index + 4]);
+                        boardCell.SetNeighbor(CellSide.SOUTH_WEST, _boardCells[index + 4]);
                     }
-                    boardCell.SetNeighbor(CellSide.SOUTH_EAST, boardCells[index + 5]);
+                    boardCell.SetNeighbor(CellSide.SOUTH_EAST, _boardCells[index + 5]);
                 }
             }
             else
-            { // Uneven rows
+            {
+                // Uneven rows
                 // Northern neighbours
                 if (!isLast)
                 {
-                    boardCell.SetNeighbor(CellSide.NORTH_EAST, boardCells[index - 4]);
+                    boardCell.SetNeighbor(CellSide.NORTH_EAST, _boardCells[index - 4]);
                 }
-                boardCell.SetNeighbor(CellSide.NORTH_WEST, boardCells[index - 5]);
+                boardCell.SetNeighbor(CellSide.NORTH_WEST, _boardCells[index - 5]);
                 // Southern neighbours
-                if (row != ((NUMBEROFCELLS / NUMBEROFCELLSINROW) - 1))
+                if (row != ((TOTAL_CELL_COUNT/CELLS_IN_ROW_COUNT) - 1))
                 {
                     if (!isLast)
                     {
-                        boardCell.SetNeighbor(CellSide.SOUTH_EAST, boardCells[index + (NUMBEROFCELLSINROW + 1)]);
+                        boardCell.SetNeighbor(CellSide.SOUTH_EAST, _boardCells[index + (CELLS_IN_ROW_COUNT + 1)]);
                     }
-                    boardCell.SetNeighbor(CellSide.SOUTH_WEST, boardCells[index + NUMBEROFCELLSINROW]);
+                    boardCell.SetNeighbor(CellSide.SOUTH_WEST, _boardCells[index + CELLS_IN_ROW_COUNT]);
                 }
             }
 
             // Set the east and west neighbours
             if (!isFirst)
             {
-                boardCell.SetNeighbor(CellSide.WEST, boardCells[index - 1]);
+                boardCell.SetNeighbor(CellSide.WEST, _boardCells[index - 1]);
             }
             if (!isLast)
             {
-                boardCell.SetNeighbor(CellSide.EAST, boardCells[index + 1]);
+                boardCell.SetNeighbor(CellSide.EAST, _boardCells[index + 1]);
             }
         }
-        public void findOccupiedBoardCells(List<BoardCell> occupiedCells, PieceCell pieceCell, BoardCell boardCell)
+
+        private void FindOccupiedBoardCells(List<BoardCell> occupiedCells, PieceCell pieceCell, BoardCell boardCell)
         {
-            if (pieceCell != null && boardCell != null && !pieceCell.IsProcessed())
+            if (pieceCell != null && boardCell != null && !pieceCell.IsProcessed)
             {
                 occupiedCells.Add(boardCell);
 
@@ -94,55 +97,55 @@ namespace meteor_contest_csharp
                 infinite recursion. Avoid this by marking the processed 
                 cells. */
 
-                pieceCell.SetProcessed(true);
+                pieceCell.IsProcessed = true;
                 // Repeat for each neighbour of the piece cell
-                for (int i = 0; i < Cell.NUMBER_OF_SIDES; i++)
+                for (var i = 0; i < Cell.NUMBER_OF_SIDES; i++)
                 {
-                    findOccupiedBoardCells(occupiedCells,
-                    (PieceCell)pieceCell.GetNeighbor((CellSide)i),
-                    (BoardCell)boardCell.GetNeighbor((CellSide)i));
+                    FindOccupiedBoardCells(occupiedCells,
+                        (PieceCell) pieceCell.GetNeighbor((CellSide) i),
+                        (BoardCell) boardCell.GetNeighbor((CellSide) i));
                 }
             }
         }
-        public bool placePiece(Piece piece, int boardCellIdx)
+
+        public bool PlacePiece(Piece piece, int boardCellIdx)
         {
             // We will manipulate the piece using its first cell
-            return placePiece(piece, 0, boardCellIdx);
+            return PlacePiece(piece, 0, boardCellIdx);
         }
 
-        public bool placePiece(Piece piece, int pieceCellIdx, int boardCellIdx)
+        private bool PlacePiece(Piece piece, int pieceCellIdx, int boardCellIdx)
         {
             // We're going to process the piece
             piece.ResetProcessed();
             // Get all the boardCells that this piece would occupy
             var occupiedBoardCells = new List<BoardCell>();
-            findOccupiedBoardCells(occupiedBoardCells, piece.getPieceCell(pieceCellIdx), boardCells[boardCellIdx]);
+            FindOccupiedBoardCells(occupiedBoardCells, piece.GetPieceCell(pieceCellIdx), _boardCells[boardCellIdx]);
             if (occupiedBoardCells.Count != Piece.NUMBER_OF_CELLS)
             {
                 // Some cells of the piece don't fall on the board
                 return false;
             }
-            for (int i = 0; i < occupiedBoardCells.Count; i++)
+            if (occupiedBoardCells.Any(t => t.Piece != null))
             {
-                if (((BoardCell)occupiedBoardCells[i]).getPiece() != null)
-                    // The board cell is already occupied by another piece
-                    return false;
+                return false;
             }
             // Occupy the board cells with the piece
-            for (int i = 0; i < occupiedBoardCells.Count; i++)
+            foreach (var t in occupiedBoardCells)
             {
-                ((BoardCell)occupiedBoardCells[i]).setPiece(piece);
+                t.Piece = piece;
             }
             return true; // The piece fits on the board
         }
-        public void removePiece(Piece piece)
+
+        public void RemovePiece(Piece piece)
         {
-            for (int i = 0; i < NUMBEROFCELLS; i++)
+            for (var i = 0; i < TOTAL_CELL_COUNT; i++)
             {
                 // Piece objects are unique, so use reference equality
-                if (boardCells[i].getPiece() == piece)
+                if (_boardCells[i].Piece == piece)
                 {
-                    boardCells[i].setPiece(null);
+                    _boardCells[i].Piece = null;
                 }
             }
         }
